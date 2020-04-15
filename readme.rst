@@ -7,10 +7,6 @@ Port can build esp-idf-v3.3.1 by idf.py command
 
 ![]("https://raw.githubusercontent.com/app-z/esp32-doom/master/IMG-42545f12237cb32b24bd5824da41ac82-V.jpg")
 
-<img src="https://habrastorage.org/webt/e_/br/13/e_br13t_nva7dv5lrbr8b9-8rpo.jpeg" />
-
-![](https://habrastorage.org/webt/e_/br/13/e_br13t_nva7dv5lrbr8b9-8rpo.jpeg)
-
 
 ![Doom ESP32](https://youtu.be/TFE2ri2Zgu4)
 

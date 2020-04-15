@@ -1,3 +1,12 @@
+ Initilize i2s start
+I (4815) I2S: DMA Malloc info, datalen=blocksize=2048, dma_buf_count=4
+I (4835) I2S: APLL: Req RATE: 11025, real rate: 11024.991, BITS: 16, CLKM: 1, BCK_M: 8, MCLK: 2822397.750, SCLK: 352799.718750, diva: 1, divb: 0
+
+
+
+
+
+
 ESP32-DOOM, a port of PrBoom to the ESP32
 =========================================
 

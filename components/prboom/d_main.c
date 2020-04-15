@@ -82,6 +82,7 @@
 #include "d_deh.h"  // Ty 04/08/98 - Externalizations
 #include "lprintf.h"  // jff 08/03/98 - declaration of lprintf
 #include "am_map.h"
+#include "esp_heap_caps.h"
 
 void GetFirstMap(int *ep, int *map); // Ty 08/29/98 - add "-warp x" functionality
 static void D_PageDrawer(void);
@@ -576,6 +577,7 @@ void D_AddFile (const char *file, wad_source_t source)
   numwadfiles++;
   // proff: automatically try to add the gwa files
   // proff - moved from w_wad.c
+/*  
   gwa_filename=AddDefaultExtension(strcpy(malloc(strlen(file)+5), file), ".wad");
   if (strlen(gwa_filename)>4)
     if (!strcasecmp(gwa_filename+(strlen(gwa_filename)-4),".wad"))
@@ -588,6 +590,7 @@ void D_AddFile (const char *file, wad_source_t source)
       wadfiles[numwadfiles].src = source; // Ty 08/29/98
       numwadfiles++;
     }
+*/    
 }
 
 // killough 10/98: support -dehout filename
@@ -739,7 +742,7 @@ static void NormalizeSlashes(char *str)
 static char *FindIWADFile(void)
 {
   char  * iwad  = NULL;
-  char *hardcodedIWad="DOOM1.WAD";
+  char *hardcodedIWad="DOOM.WAD";
   iwad=malloc(strlen(hardcodedIWad)+1);
   strcpy(iwad, hardcodedIWad);
 #if 0
@@ -857,6 +860,7 @@ static void IdentifyVersion (void)
     if (gamemode == indetermined)
       //jff 9/3/98 use logical output routine
       lprintf(LO_WARN,"Unknown Game Version, may not work\n");
+    D_AddFile("prboom.wad",source_pre);//source_iwad);
     D_AddFile(iwad,source_iwad);
     free(iwad);
   }
@@ -1344,7 +1348,7 @@ static void D_DoomMainSetup(void)
   }
 	//Hardcode music and sound disabled -- JD
     nomusicparm=true;
-    nosfxparm=true;
+    //nosfxparm=true;
   //jff end of sound/music command line parms
 
   // killough 3/2/98: allow -nodraw -noblit generally
@@ -1408,7 +1412,6 @@ static void D_DoomMainSetup(void)
   //jff 9/3/98 use logical output routine
   lprintf(LO_INFO,"V_Init: allocate screens.\n");
   V_Init();
-
   // CPhipps - autoloading of wads
   // Designed to be general, instead of specific to boomlump.wad
   // Some people might find this useful
@@ -1564,6 +1567,7 @@ static void D_DoomMainSetup(void)
   //jff 9/3/98 use logical output routine
   lprintf(LO_INFO,"I_Init: Setting up machine state.\n");
   I_Init();
+//heap_caps_print_heap_info(MALLOC_CAP_SPIRAM);
 
   //jff 9/3/98 use logical output routine
   lprintf(LO_INFO,"S_Init: Setting up sound.\n");

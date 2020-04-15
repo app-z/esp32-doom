@@ -113,7 +113,7 @@ void psxcontrollerInit() {
 	gpio_config(&gpioconf[0]);
 	gpio_config(&gpioconf[1]);
 	
-	PIN_PULLUP_EN(PERIPHS_IO_MUX_GPIO27_U);
+	// PIN_PULLUP_EN(PERIPHS_IO_MUX_GPIO27_U);
 	//Send a few dummy bytes to clean the pipes.
 	psxSendRecv(0);
 	psxDone();

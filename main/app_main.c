@@ -30,7 +30,7 @@
 #include <stdlib.h>
 #include "esp_err.h"
 #include "nvs_flash.h"
-#include "esp_partition.h"
+// #include "esp_partition.h"
 
 #undef false
 #undef true

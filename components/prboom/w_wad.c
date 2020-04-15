@@ -468,7 +468,7 @@ int W_LumpLength (int lump)
 void W_ReadLump(int lump, void *dest)
 {
   lumpinfo_t *l = lumpinfo + lump;
-
+  lprintf(LO_INFO,"W_ReadLump %d, dest: %p\n", lump, dest);
 #ifdef RANGECHECK
   if (lump >= numlumps)
     I_Error ("W_ReadLump: %i >= numlumps",lump);

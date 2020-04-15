@@ -17,23 +17,24 @@
 #include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "freertos/semphr.h"
 #include "esp_system.h"
 #include "driver/spi_master.h"
 #include "soc/gpio_struct.h"
 #include "driver/gpio.h"
-#include "esp_heap_alloc_caps.h"
+// #include "esp_heap_alloc_caps.h"
 
 #include "sdkconfig.h"
 
 
-#if 0
-#define PIN_NUM_MISO 25
+#if 1
+#define PIN_NUM_MISO 19
 #define PIN_NUM_MOSI 23
-#define PIN_NUM_CLK  19
-#define PIN_NUM_CS   22
-#define PIN_NUM_DC   21
-#define PIN_NUM_RST  18
-#define PIN_NUM_BCKL 5
+#define PIN_NUM_CLK  18
+#define PIN_NUM_CS   13
+#define PIN_NUM_DC   4
+#define PIN_NUM_RST  -1
+#define PIN_NUM_BCKL -1
 #else
 #define PIN_NUM_MOSI CONFIG_HW_LCD_MOSI_GPIO
 #define PIN_NUM_CLK  CONFIG_HW_LCD_CLK_GPIO
@@ -44,7 +45,7 @@
 #endif
 
 //You want this, especially at higher framerates. The 2nd buffer is allocated in iram anyway, so isn't really in the way.
-#define DOUBLE_BUFFER
+ #define DOUBLE_BUFFER
 
 
 /*
@@ -73,6 +74,7 @@ static const ili_init_cmd_t ili_init_cmds[]={
     {0xD0, {0xA4, 0xA1}, 1},
     {0xE0, {0xD0, 0x00, 0x05, 0x0E, 0x15, 0x0D, 0x37, 0x43, 0x47, 0x09, 0x15, 0x12, 0x16, 0x19}, 14},
     {0xE1, {0xD0, 0x00, 0x05, 0x0D, 0x0C, 0x06, 0x2D, 0x44, 0x40, 0x0E, 0x1C, 0x18, 0x16, 0x19}, 14},
+//    {0x36, {0x10}, 1},
     {0x11, {0}, 0x80},
     {0x29, {0}, 0x80},
     {0, {0}, 0xff}
@@ -151,21 +153,36 @@ void ili_spi_pre_transfer_callback(spi_transaction_t *t)
     gpio_set_level(PIN_NUM_DC, dc);
 }
 
+DRAM_ATTR static const char cmdRot = 0x36;
+DRAM_ATTR static const uint8_t dataRot = 0x40|0x80|0x20|0x08;
+
+
 //Initialize the display
 void ili_init(spi_device_handle_t spi) 
 {
+    
+	
+	printf("PIN_NUM_DC %d, PIN_NUM_BCKL %d\n", PIN_NUM_DC, PIN_NUM_BCKL);
+
     int cmd=0;
     //Initialize non-SPI GPIOs
     gpio_set_direction(PIN_NUM_DC, GPIO_MODE_OUTPUT);
-    gpio_set_direction(PIN_NUM_RST, GPIO_MODE_OUTPUT);
-    gpio_set_direction(PIN_NUM_BCKL, GPIO_MODE_OUTPUT);
+    // no back light use!
+    // gpio_set_direction(PIN_NUM_BCKL, GPIO_MODE_OUTPUT);
 
-    //Reset the display
-    gpio_set_level(PIN_NUM_RST, 0);
-    vTaskDelay(100 / portTICK_RATE_MS);
-    gpio_set_level(PIN_NUM_RST, 1);
-    vTaskDelay(100 / portTICK_RATE_MS);
+    if (PIN_NUM_RST > 0) {
 
+	 printf ("Use rest display pin = %d", PIN_NUM_RST);
+	 gpio_set_direction(PIN_NUM_RST, GPIO_MODE_OUTPUT);
+
+   	 //Reset the display
+   	 gpio_set_level(PIN_NUM_RST, 0);
+    	vTaskDelay(100 / portTICK_RATE_MS);
+    	gpio_set_level(PIN_NUM_RST, 1);
+    	vTaskDelay(100 / portTICK_RATE_MS);
+    } else {
+       printf ("Dont Use rest display pin = %d", PIN_NUM_RST);
+    }
     //Send all the commands
     while (ili_init_cmds[cmd].databytes!=0xff) {
         uint8_t dmdata[16];
@@ -179,12 +196,17 @@ void ili_init(spi_device_handle_t spi)
         cmd++;
     }
 
-    ///Enable backlight
-#if CONFIG_HW_INV_BL
-    gpio_set_level(PIN_NUM_BCKL, 0);
-#else
-    gpio_set_level(PIN_NUM_BCKL, 1);
-#endif
+    ili_cmd(spi, cmdRot);
+    ili_data(spi, &dataRot, 1);
+    vTaskDelay(100 / portTICK_RATE_MS);
+
+
+///Enable backlight
+//#if CONFIG_HW_INV_BL
+//    gpio_set_level(PIN_NUM_BCKL, 0);
+//#else
+//    gpio_set_level(PIN_NUM_BCKL, 1);
+//#endif
 
 }
 
@@ -292,17 +314,19 @@ void IRAM_ATTR displayTask(void *arg) {
 	printf("*** Display task starting.\n");
 
     //Initialize the SPI bus
-    ret=spi_bus_initialize(HSPI_HOST, &buscfg, 1);
+    ret=spi_bus_initialize(VSPI_HOST, &buscfg, 1);
     assert(ret==ESP_OK);
     //Attach the LCD to the SPI bus
-    ret=spi_bus_add_device(HSPI_HOST, &devcfg, &spi);
+    ret=spi_bus_add_device(VSPI_HOST, &devcfg, &spi);
     assert(ret==ESP_OK);
     //Initialize the LCD
     ili_init(spi);
 
 	//We're going to do a fair few transfers in parallel. Set them all up.
 	for (x=0; x<NO_SIM_TRANS; x++) {
-		dmamem[x]=pvPortMallocCaps(MEM_PER_TRANS*2, MALLOC_CAP_DMA);
+		printf("pvPortMallocCaps x=%d, size=%d, NO_SIM_TRANS=%d\n", x, MEM_PER_TRANS*2, NO_SIM_TRANS);
+		//dmamem[x]=pvPortMallocCaps(MEM_PER_TRANS*2, MALLOC_CAP_DMA);
+		dmamem[x]=malloc(MEM_PER_TRANS*2);
 		assert(dmamem[x]);
 		memset(&trans[x], 0, sizeof(spi_transaction_t));
 		trans[x].length=MEM_PER_TRANS*2;
@@ -365,7 +389,7 @@ void IRAM_ATTR displayTask(void *arg) {
 #include    <xtensa/config/core.h>
 #include    <xtensa/corebits.h>
 #include    <xtensa/config/system.h>
-#include    <xtensa/simcall.h>
+//#include    <xtensa/simcall.h>
 
 void spi_lcd_wait_finish() {
 #ifndef DOUBLE_BUFFER
@@ -388,7 +412,8 @@ void spi_lcd_init() {
     dispSem=xSemaphoreCreateBinary();
     dispDoneSem=xSemaphoreCreateBinary();
 #ifdef DOUBLE_BUFFER
-	currFbPtr=pvPortMallocCaps(320*240, MALLOC_CAP_32BIT);
+	//currFbPtr=pvPortMallocCaps(320*240, MALLOC_CAP_32BIT);
+	currFbPtr=malloc(320*240*4);
 #endif
 #if CONFIG_FREERTOS_UNICORE
 	xTaskCreatePinnedToCore(&displayTask, "display", 6000, NULL, 6, NULL, 0);

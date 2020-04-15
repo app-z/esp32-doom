@@ -28,6 +28,9 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
+#include "mcp23017.h"
+
+
 
 //The gamepad uses keyboard emulation, but for compilation, these variables need to be placed
 //somewhere. THis is as good a place as any.
@@ -43,6 +46,7 @@ typedef struct {
 	int *key;
 } JsKeyMap;
 
+#ifdef OLD_JOYSTICK
 //Mappings from PS2 buttons to keys
 static const JsKeyMap keymap[]={
 	{0x10, &key_up},
@@ -66,6 +70,25 @@ static const JsKeyMap keymap[]={
 
 	{0, NULL},
 };
+#endif
+
+//Mappings from MCP407 buttons to keys
+static const JsKeyMap keymap[]={
+        {0x08, &key_up},
+       // {0x01, &key_down},
+        {0x02, &key_left},
+        {0x04, &key_right},
+        {0x01, &key_use},                             //cross
+
+	{0x40, &key_fire},                    //circle
+
+        {0x20, &key_escape},                    //circle
+        {0x10, &key_menu_enter},              //circle
+
+	{0, NULL},
+};
+
+
 
 
 void gamepadPoll(void)
@@ -87,13 +110,25 @@ void gamepadPoll(void)
 
 
 void jsTask(void *arg) {
+
+	keybControllerInit();
+
+
 	int oldJoyVal=0xFFFF;
 	printf("Joystick task starting.\n");
-	while(1) {
-		vTaskDelay(20/portTICK_PERIOD_MS);
-		joyVal=psxReadInput();
+//	while(1) {
+//		vTaskDelay(20/portTICK_PERIOD_MS);
+//		joyVal=psxReadInput();
 //		if (joyVal!=oldJoyVal) printf("Joy: %x\n", joyVal^0xffff);
-		oldJoyVal=joyVal;
+//		oldJoyVal=joyVal;
+//	}	
+
+	while(1){
+	   vTaskDelay(20/portTICK_PERIOD_MS);
+           joyVal = keybReadInput();
+	   if (joyVal!=oldJoyVal) printf("Joy: %x\n", joyVal^0xffff);
+              oldJoyVal=joyVal;
+
 	}
 }
 

@@ -42,6 +42,7 @@ byteSwap(UWORD32 *buf, unsigned words)
 #define byteSwap(buf,words)
 #endif
 
+#if 0
 /*
  * Start MD5 accumulation.  Set bit count to 0 and buffer to mysterious
  * initialization constants.
@@ -133,6 +134,7 @@ MD5Final(md5byte digest[16], struct MD5Context *ctx)
         memcpy(digest, ctx->buf, 16);
         memset(ctx, 0, sizeof(*ctx));    /* In case it's sensitive */
 }
+#endif
 
 #ifndef ASM_MD5
 

@@ -1,9 +1,21 @@
- Initilize i2s start
+Fork from https://github.com/espressif/esp32-doom
+
+Also used some files from https://github.com/jkirsons/doom-espidf
+
+Port can build esp-idf-v3.3.1 by idf.py command
+
+[![Doom ESP32](https://i9.ytimg.com/vi/TFE2ri2Zgu4/mq2.jpg)](https://youtu.be/TFE2ri2Zgu4) 
+
+
+There is some trouble with CS4344 DAC
+
+
+Initilize i2s start
 I (4815) I2S: DMA Malloc info, datalen=blocksize=2048, dma_buf_count=4
 I (4835) I2S: APLL: Req RATE: 11025, real rate: 11024.991, BITS: 16, CLKM: 1, BCK_M: 8, MCLK: 2822397.750, SCLK: 352799.718750, diva: 1, divb: 0
 
 
-
+PCB and Schematic coming soon
 
 
 

@@ -7,7 +7,9 @@ Port can build esp-idf-v3.3.1 by idf.py command
 [![Doom ESP32]()](https://youtu.be/TFE2ri2Zgu4)
 
 
-There is some trouble with CS4344 DAC
+I use I2C GPIO expanders MCP23017 for buttons and CS4344 DAC
+
+There is some trouble with CS4344. Sound is terrible interrupting
 
 
 Initilize i2s start

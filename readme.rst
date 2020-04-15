@@ -5,7 +5,8 @@ Also used some files from https://github.com/jkirsons/doom-espidf
 Port can build esp-idf-v3.3.1 by idf.py command
 
 
-![ESP32 doom](IMG-42545f12237cb32b24bd5824da41ac82-V.jpg)
+![]("https://raw.githubusercontent.com/app-z/esp32-doom/master/IMG-42545f12237cb32b24bd5824da41ac82-V.jpg")
+![](https://github.com/app-z/WaterWaves/blob/master/gfx/device-2015-04-23-171030.png)
 
 
 ![Doom ESP32](https://youtu.be/TFE2ri2Zgu4)

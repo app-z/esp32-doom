@@ -4,7 +4,7 @@ Also used some files from https://github.com/jkirsons/doom-espidf
 
 Port can build esp-idf-v3.3.1 by idf.py command
 
-[![Doom ESP32](https://i9.ytimg.com/vi/TFE2ri2Zgu4/mq2.jpg)](https://youtu.be/TFE2ri2Zgu4) 
+[![Doom ESP32](https://i9.ytimg.com/vi/TFE2ri2Zgu4/mq2.jpg)](https://youtu.be/TFE2ri2Zgu4)]
 
 
 There is some trouble with CS4344 DAC
